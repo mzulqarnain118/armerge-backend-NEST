@@ -1,0 +1,10 @@
+import { ClassConstructor } from 'class-transformer';
+export declare const RequestUserAgent: () => ParameterDecorator;
+export declare const RequestId: () => ParameterDecorator;
+export declare const RequestXTimestamp: () => ParameterDecorator;
+export declare const RequestTimestamp: () => ParameterDecorator;
+export declare const RequestCustomLang: () => ParameterDecorator;
+export declare function RequestParamGuard(...classValidation: ClassConstructor<any>[]): MethodDecorator;
+export declare function RequestValidateUserAgent(): MethodDecorator;
+export declare function RequestValidateTimestamp(): MethodDecorator;
+export declare function RequestTimeout(seconds: string): MethodDecorator;
