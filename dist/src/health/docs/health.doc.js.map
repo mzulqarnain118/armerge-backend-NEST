@@ -1,1 +1,0 @@
-{"version":3,"file":"health.doc.js","sourceRoot":"","sources":["../../../../src/health/docs/health.doc.ts"],"names":[],"mappings":";;;AAAA,2CAAiD;AACjD,6EAA8D;AAC9D,iFAAqF;AAErF,SAAgB,cAAc;IAC1B,OAAO,IAAA,wBAAe,EAClB,IAAA,mBAAG,EAAsB,cAAc,EAAE;QACrC,IAAI,EAAE;YACF,cAAc,EAAE,KAAK;SACxB;QACD,QAAQ,EAAE,EAAE,aAAa,EAAE,0CAAmB,EAAE;KACnD,CAAC,CACL,CAAC;AACN,CAAC;AATD,wCASC"}

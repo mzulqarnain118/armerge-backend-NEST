@@ -1,1 +1,0 @@
-export declare const GetSetting: (...dataOrPipes: (boolean | import("@nestjs/common").PipeTransform<any, any> | import("@nestjs/common").Type<import("@nestjs/common").PipeTransform<any, any>>)[]) => ParameterDecorator;
