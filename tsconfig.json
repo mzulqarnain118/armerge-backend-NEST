@@ -1,0 +1,41 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "useDefineForClassFields": false,
+    "target": "ESNext",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "incremental": true,
+    "skipLibCheck": true,
+    "allowJs": false,
+    "esModuleInterop": true,
+    "moduleResolution": "node",     
+    "resolveJsonModule": true,
+    "paths": {
+      "~src/*": ["./src/*"],
+      "~common/*": ["./src/common/*"],
+      "~error/*": ["./src/common/error/*"],
+      "~helper/*": ["./src/common/helper/*"],
+      "~jobs/*": ["./src/jobs/*"],
+      "~migrations/*": ["./src/migrations/*"],
+      "~modules/*": ["./src/modules/*"],
+    }
+  },
+  "include": [
+    "src",
+    "test",
+  ],
+  "exclude": [
+    "node_modules",
+    "dist", 
+    "*coverage",
+    "logs",
+    "data"
+  ],
+}
