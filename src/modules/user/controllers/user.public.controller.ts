@@ -394,8 +394,6 @@ export class UserPublicController {
             refreshToken: googleRefreshToken,
         }: IAuthGooglePayload
     ): Promise<void> {
-        // sign up
-
         const promises: Promise<any>[] = [
             this.roleService.findOneByName('user'),
             this.userService.existByEmail(email),

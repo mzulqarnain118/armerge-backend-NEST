@@ -2,9 +2,10 @@ import { Module } from '@nestjs/common';
 import { UserRepositoryModule } from 'src/modules/user/repository/user.repository.module';
 import { UserService } from './services/user.service';
 import { UserAuthService } from './services/user.auth.service';
+import { MailerModule } from '~common/mail/mailer.module';
 
 @Module({
-    imports: [UserRepositoryModule],
+    imports: [UserRepositoryModule, MailerModule],
     exports: [UserService, UserAuthService],
     providers: [UserService, UserAuthService],
 })

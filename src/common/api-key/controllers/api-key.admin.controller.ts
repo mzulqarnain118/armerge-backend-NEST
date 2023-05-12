@@ -57,13 +57,13 @@ import { ApiKeyResetSerialization } from 'src/common/api-key/serializations/api-
 import { ApiKeyService } from 'src/common/api-key/services/api-key.service';
 import { AuthJwtAdminAccessProtected } from 'src/common/auth/decorators/auth.jwt.decorator';
 import { ENUM_ERROR_STATUS_CODE_ERROR } from 'src/common/error/constants/error.status-code.constant';
-// import {
-//     PaginationQuery,
-//     PaginationQueryFilterInBoolean,
-//     PaginationQueryFilterInEnum,
-// } from 'src/common/pagination/decorators/pagination.decorator';
-// import { PaginationListDto } from 'src/common/pagination/dtos/pagination.list.dto';
-// import { PaginationService } from 'src/common/pagination/services/pagination.service';
+import {
+    PaginationQuery,
+    PaginationQueryFilterInBoolean,
+    PaginationQueryFilterInEnum,
+} from 'src/common/pagination/decorators/pagination.decorator';
+import { PaginationListDto } from 'src/common/pagination/dtos/pagination.list.dto';
+import { PaginationService } from 'src/common/pagination/services/pagination.service';
 import {
     ENUM_POLICY_ACTION,
     ENUM_POLICY_SUBJECT,
@@ -88,7 +88,7 @@ import { ResponseIdSerialization } from 'src/common/response/serializations/resp
 export class ApiKeyAdminController {
     constructor(
         private readonly apiKeyService: ApiKeyService,
-        // private readonly paginationService: PaginationService
+        private readonly paginationService: PaginationService
     ) {}
 
     @ApiKeyAdminListDoc()
@@ -103,45 +103,44 @@ export class ApiKeyAdminController {
     @ApiKeyPublicProtected()
     @Get('/list')
     async list(
-        // @PaginationQuery(
-        //     API_KEY_DEFAULT_PER_PAGE,
-        //     API_KEY_DEFAULT_ORDER_BY,
-        //     API_KEY_DEFAULT_ORDER_DIRECTION,
-        //     API_KEY_DEFAULT_AVAILABLE_SEARCH,
-        //     API_KEY_DEFAULT_AVAILABLE_ORDER_BY
-        // )
-        // { _search, _limit, _offset, _order }: PaginationListDto,
-        // @PaginationQueryFilterInBoolean('isActive', API_KEY_DEFAULT_IS_ACTIVE)
-        // isActive: Record<string, any>,
-        // @PaginationQueryFilterInEnum(
-        //     'type',
-        //     API_KEY_DEFAULT_TYPE,
-        //     ENUM_API_KEY_TYPE
-        // )
-        // type: Record<string, any>
+        @PaginationQuery(
+            API_KEY_DEFAULT_PER_PAGE,
+            API_KEY_DEFAULT_ORDER_BY,
+            API_KEY_DEFAULT_ORDER_DIRECTION,
+            API_KEY_DEFAULT_AVAILABLE_SEARCH,
+            API_KEY_DEFAULT_AVAILABLE_ORDER_BY
+        )
+        { _search, _limit, _offset, _order }: PaginationListDto,
+        @PaginationQueryFilterInBoolean('isActive', API_KEY_DEFAULT_IS_ACTIVE)
+        isActive: Record<string, any>,
+        @PaginationQueryFilterInEnum(
+            'type',
+            API_KEY_DEFAULT_TYPE,
+            ENUM_API_KEY_TYPE
+        )
+        type: Record<string, any>
     ): Promise<IResponsePaging> {
         const find: Record<string, any> = {
-            // ..._search,
-            // ...isActive,
-            // ...type,
+            ..._search,
+            ...isActive,
+            ...type,
         };
 
         const apiKeys: ApiKeyEntity[] = await this.apiKeyService.findAll(find, {
-            // paging: {
-            //     limit: _limit,
-            //     offset: _offset,
-            // },
-            // order: _order,
+            paging: {
+                limit: _limit,
+                offset: _offset,
+            },
+            order: _order,
         });
         const total: number = await this.apiKeyService.getTotal(find);
-        // const totalPage: number = this.paginationService.totalPage(
-        //     total,
-        //     _limit
-        // );
+        const totalPage: number = this.paginationService.totalPage(
+            total,
+            _limit
+        );
 
         return {
-            _pagination: { // totalPage, 
-                total },
+            _pagination: { totalPage, total },
             data: apiKeys,
         };
     }
@@ -170,7 +169,7 @@ export class ApiKeyAdminController {
         action: [ENUM_POLICY_ACTION.READ, ENUM_POLICY_ACTION.CREATE],
     })
     @AuthJwtAdminAccessProtected()
-    //@ApiKeyPublicProtected()
+    @ApiKeyPublicProtected()
     @Post('/create')
     async create(@Body() body: ApiKeyCreateDto): Promise<IResponse> {
         try {

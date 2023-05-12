@@ -12,13 +12,13 @@ import {
 import { ApiTags } from '@nestjs/swagger';
 import { AuthJwtAdminAccessProtected } from 'src/common/auth/decorators/auth.jwt.decorator';
 import { ENUM_ERROR_STATUS_CODE_ERROR } from 'src/common/error/constants/error.status-code.constant';
-// import {
-//     PaginationQuery,
-//     PaginationQueryFilterInBoolean,
-//     PaginationQueryFilterInEnum,
-// } from 'src/common/pagination/decorators/pagination.decorator';
-// import { PaginationListDto } from 'src/common/pagination/dtos/pagination.list.dto';
-// import { PaginationService } from 'src/common/pagination/services/pagination.service';
+import {
+    PaginationQuery,
+    PaginationQueryFilterInBoolean,
+    PaginationQueryFilterInEnum,
+} from 'src/common/pagination/decorators/pagination.decorator';
+import { PaginationListDto } from 'src/common/pagination/dtos/pagination.list.dto';
+import { PaginationService } from 'src/common/pagination/services/pagination.service';
 import {
     ENUM_POLICY_ACTION,
     ENUM_POLICY_SUBJECT,
@@ -83,7 +83,7 @@ import { UserService } from 'src/modules/user/services/user.service';
 })
 export class RoleAdminController {
     constructor(
-        // private readonly paginationService: PaginationService,
+        private readonly paginationService: PaginationService,
         private readonly roleService: RoleService,
         private readonly userService: UserService
     ) {}
@@ -98,43 +98,42 @@ export class RoleAdminController {
     })
     @AuthJwtAdminAccessProtected()
     @Get('/list')
-    async list(): // @PaginationQuery(
-    //     ROLE_DEFAULT_PER_PAGE,
-    //     ROLE_DEFAULT_ORDER_BY,
-    //     ROLE_DEFAULT_ORDER_DIRECTION,
-    //     ROLE_DEFAULT_AVAILABLE_SEARCH,
-    //     ROLE_DEFAULT_AVAILABLE_ORDER_BY
-    // )
-    // { _search, _limit, _offset, _order }: PaginationListDto,
-    // @PaginationQueryFilterInBoolean('isActive', ROLE_DEFAULT_IS_ACTIVE)
-    // isActive: Record<string, any>,
-    // @PaginationQueryFilterInEnum('type', ROLE_DEFAULT_TYPE, ENUM_ROLE_TYPE)
-    // type: Record<string, any>
-    Promise<IResponsePaging> {
+    async list(
+        @PaginationQuery(
+            ROLE_DEFAULT_PER_PAGE,
+            ROLE_DEFAULT_ORDER_BY,
+            ROLE_DEFAULT_ORDER_DIRECTION,
+            ROLE_DEFAULT_AVAILABLE_SEARCH,
+            ROLE_DEFAULT_AVAILABLE_ORDER_BY
+        )
+        { _search, _limit, _offset, _order }: PaginationListDto,
+        @PaginationQueryFilterInBoolean('isActive', ROLE_DEFAULT_IS_ACTIVE)
+        isActive: Record<string, any>,
+        @PaginationQueryFilterInEnum('type', ROLE_DEFAULT_TYPE, ENUM_ROLE_TYPE)
+        type: Record<string, any>
+    ): Promise<IResponsePaging> {
         const find: Record<string, any> = {
-            // ..._search,
-            // ...isActive,
-            // ...type,
+            ..._search,
+            ...isActive,
+            ...type,
         };
 
         const roles: RoleEntity[] = await this.roleService.findAll(find, {
-            // paging: {
-            //     limit: _limit,
-            //     offset: _offset,
-            // },
-            // order: _order,
+            paging: {
+                limit: _limit,
+                offset: _offset,
+            },
+            order: _order,
         });
 
         const total: number = await this.roleService.getTotal(find);
-        // const totalPage: number = this.paginationService.totalPage(
-        //     total,
-        //     _limit
-        // );
+        const totalPage: number = this.paginationService.totalPage(
+            total,
+            _limit
+        );
 
         return {
-            _pagination: {
-                total, //totalPage
-            },
+            _pagination: { total, totalPage },
             data: roles,
         };
     }

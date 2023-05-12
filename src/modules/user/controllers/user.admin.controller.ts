@@ -24,7 +24,7 @@ import { ENUM_ERROR_STATUS_CODE_ERROR } from 'src/common/error/constants/error.s
 // import { FileTypeExcelPipe } from 'src/common/file/pipes/file.type.pipe';
 // import { FileValidationPipe } from 'src/common/file/pipes/file.validation.pipe';
 import { ENUM_HELPER_FILE_TYPE } from 'src/common/helper/constants/helper.enum.constant';
-// import { PaginationService } from 'src/common/pagination/services/pagination.service';
+import { PaginationService } from 'src/common/pagination/services/pagination.service';
 import { RequestParamGuard } from 'src/common/request/decorators/request.decorator';
 import {
     Response,
@@ -47,7 +47,7 @@ import {
 } from 'src/modules/user/decorators/user.admin.decorator';
 import { GetUser } from 'src/modules/user/decorators/user.decorator';
 import { UserCreateDto } from 'src/modules/user/dtos/user.create.dto';
-import { UserImportDto } from 'src/modules/user/dtos/user.import.dto';
+// import { UserImportDto } from 'src/modules/user/dtos/user.import.dto';
 import { UserRequestDto } from 'src/modules/user/dtos/user.request.dto';
 import {
     IUserDoc,
@@ -58,22 +58,22 @@ import { UserListSerialization } from 'src/modules/user/serializations/user.list
 import { UserService } from 'src/modules/user/services/user.service';
 import { AuthJwtAdminAccessProtected } from 'src/common/auth/decorators/auth.jwt.decorator';
 import { UserUpdateNameDto } from 'src/modules/user/dtos/user.update-name.dto';
-// import {
-//     USER_DEFAULT_AVAILABLE_ORDER_BY,
-//     USER_DEFAULT_AVAILABLE_SEARCH,
-//     USER_DEFAULT_BLOCKED,
-//     USER_DEFAULT_INACTIVE_PERMANENT,
-//     USER_DEFAULT_IS_ACTIVE,
-//     USER_DEFAULT_ORDER_BY,
-//     USER_DEFAULT_ORDER_DIRECTION,
-//     USER_DEFAULT_PER_PAGE,
-// } from 'src/modules/user/constants/user.list.constant';
-// import { PaginationListDto } from 'src/common/pagination/dtos/pagination.list.dto';
-// import {
-//     PaginationQuery,
-//     PaginationQueryFilterEqualObjectId,
-//     PaginationQueryFilterInBoolean,
-// } from 'src/common/pagination/decorators/pagination.decorator';
+import {
+    USER_DEFAULT_AVAILABLE_ORDER_BY,
+    USER_DEFAULT_AVAILABLE_SEARCH,
+    USER_DEFAULT_BLOCKED,
+    USER_DEFAULT_INACTIVE_PERMANENT,
+    USER_DEFAULT_IS_ACTIVE,
+    USER_DEFAULT_ORDER_BY,
+    USER_DEFAULT_ORDER_DIRECTION,
+    USER_DEFAULT_PER_PAGE,
+} from 'src/modules/user/constants/user.list.constant';
+import { PaginationListDto } from 'src/common/pagination/dtos/pagination.list.dto';
+import {
+    PaginationQuery,
+    PaginationQueryFilterEqualObjectId,
+    PaginationQueryFilterInBoolean,
+} from 'src/common/pagination/decorators/pagination.decorator';
 import { UserDoc } from 'src/modules/user/repository/entities/user.entity';
 import { IAuthPassword } from 'src/common/auth/interfaces/auth.interface';
 import { RoleService } from 'src/modules/role/services/role.service';
@@ -83,7 +83,7 @@ import {
     ENUM_POLICY_ACTION,
     ENUM_POLICY_SUBJECT,
 } from 'src/common/policy/constants/policy.enum.constant';
-import { RoleDoc } from 'src/modules/role/repository/entities/role.entity';
+// import { RoleDoc } from 'src/modules/role/repository/entities/role.entity';
 import {
     UserAdminActiveDoc,
     UserAdminBlockedDoc,
@@ -91,7 +91,7 @@ import {
     UserAdminDeleteDoc,
     UserAdminExportDoc,
     UserAdminGetDoc,
-    UserAdminImportDoc,
+    // UserAdminImportDoc,
     UserAdminInactiveDoc,
     UserAdminListDoc,
     UserAdminUpdateDoc,
@@ -106,7 +106,7 @@ import { ENUM_USER_SIGN_UP_FROM } from 'src/modules/user/constants/user.enum.con
 export class UserAdminController {
     constructor(
         private readonly authService: AuthService,
-        // private readonly paginationService: PaginationService,
+        private readonly paginationService: PaginationService,
         private readonly userService: UserService,
         private readonly roleService: RoleService
     ) {}
@@ -122,51 +122,49 @@ export class UserAdminController {
     @AuthJwtAdminAccessProtected()
     @Get('/list')
     async list(
-        // @PaginationQuery(
-        //     USER_DEFAULT_PER_PAGE,
-        //     USER_DEFAULT_ORDER_BY,
-        //     USER_DEFAULT_ORDER_DIRECTION,
-        //     USER_DEFAULT_AVAILABLE_SEARCH,
-        //     USER_DEFAULT_AVAILABLE_ORDER_BY
-        // )
-        // { _search, _limit, _offset, _order }: PaginationListDto,
-        // @PaginationQueryFilterInBoolean('isActive', USER_DEFAULT_IS_ACTIVE)
-        // isActive: Record<string, any>,
-        // @PaginationQueryFilterInBoolean('blocked', USER_DEFAULT_BLOCKED)
-        // blocked: Record<string, any>,
-        // @PaginationQueryFilterInBoolean(
-        //     'inactivePermanent',
-        //     USER_DEFAULT_INACTIVE_PERMANENT
-        // )
-        // inactivePermanent: Record<string, any>,
-        // @PaginationQueryFilterEqualObjectId('role')
-        // role: Record<string, any>
+        @PaginationQuery(
+            USER_DEFAULT_PER_PAGE,
+            USER_DEFAULT_ORDER_BY,
+            USER_DEFAULT_ORDER_DIRECTION,
+            USER_DEFAULT_AVAILABLE_SEARCH,
+            USER_DEFAULT_AVAILABLE_ORDER_BY
+        )
+        { _search, _limit, _offset, _order }: PaginationListDto,
+        @PaginationQueryFilterInBoolean('isActive', USER_DEFAULT_IS_ACTIVE)
+        isActive: Record<string, any>,
+        @PaginationQueryFilterInBoolean('blocked', USER_DEFAULT_BLOCKED)
+        blocked: Record<string, any>,
+        @PaginationQueryFilterInBoolean(
+            'inactivePermanent',
+            USER_DEFAULT_INACTIVE_PERMANENT
+        )
+        inactivePermanent: Record<string, any>,
+        @PaginationQueryFilterEqualObjectId('role')
+        role: Record<string, any>
     ): Promise<IResponsePaging> {
         const find: Record<string, any> = {
-            // ..._search,
-            // ...isActive,
-            // ...blocked,
-            // ...inactivePermanent,
-            // ...role,
+            ..._search,
+            ...isActive,
+            ...blocked,
+            ...inactivePermanent,
+            ...role,
         };
 
         const users: IUserEntity[] = await this.userService.findAll(find, {
-            // paging: {
-            //     limit: _limit,
-            //     offset: _offset,
-            // },
-            // order: _order,
+            paging: {
+                limit: _limit,
+                offset: _offset,
+            },
+            order: _order,
         });
         const total: number = await this.userService.getTotal(find);
-        // const totalPage: number = this.paginationService.totalPage(
-        //     total,
-        //     _limit
-        // );
+        const totalPage: number = this.paginationService.totalPage(
+            total,
+            _limit
+        );
 
         return {
-            _pagination: {
-                total, // totalPage
-            },
+            _pagination: { total, totalPage },
             data: users,
         };
     }
