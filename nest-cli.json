@@ -7,7 +7,8 @@
       { 
         "include": "languages/**/*", 
         "outDir": "dist/src" 
-      }
+      },
+      { "include": "**/*.hbs", "watchAssets": true, "outDir": "dist/src" }
     ],
     "webpack": false,
     "deleteOutDir": true,

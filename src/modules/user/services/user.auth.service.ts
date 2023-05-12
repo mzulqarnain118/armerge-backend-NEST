@@ -3,15 +3,19 @@ import {
     Injectable,
     NotFoundException,
 } from '@nestjs/common';
+import sgMail from '@sendgrid/mail';
 import { UserService } from './user.service';
 import { UserDoc } from '../repository/entities/user.entity';
 import { HelperEncryptionService } from '~src/common/helper/services/helper.encryption.service';
 import { ENUM_USER_STATUS_CODE_ERROR } from '../constants/user.status-code.constant';
+import { MailerService } from '~common/mail/mailer.service';
+import { ISendMailOptions } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UserAuthService {
     constructor(
         private readonly encryptionService: HelperEncryptionService,
+        private readonly mailer: MailerService,
         private readonly userService: UserService
     ) {}
     async createResetPasswordToken(user: UserDoc): Promise<string> {
@@ -88,7 +92,25 @@ export class UserAuthService {
     }
 
     async passwordResetMail(email: string, token: string) {
-        const client_url = process.env.CLIENT_URL;
-        return 'Email Sent';
+        sgMail.setApiKey(process.env.API_KEY_SENDGRID);
+        const clientURL = process.env.CLIENT_URL;
+        const resetPassURL = `${clientURL}/reset-password/${token}`;
+
+        const mailData: ISendMailOptions = {
+            to: email,
+            from: 'noreply@em4793.devcrew.io',
+            subject: 'Reset Password',
+            template: "resetPassword",
+            context: {
+                resetPassURL
+            }
+        };
+
+        try {
+            await this.mailer.sendMail(mailData);
+            console.log('Reset Mail Sent to: ', email);
+        } catch (err) {
+            console.log("Error: ", JSON.stringify(err));
+        }
     }
 }

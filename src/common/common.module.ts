@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { DebuggerModule } from 'src/common/debugger/debugger.module';
 import { HelperModule } from 'src/common/helper/helper.module';
 import { ErrorModule } from 'src/common/error/error.module';
@@ -8,7 +8,7 @@ import { RequestModule } from 'src/common/request/request.module';
 import { AuthModule } from 'src/common/auth/auth.module';
 import { MessageModule } from 'src/common/message/message.module';
 // import { LoggerModule } from 'src/common/logger/logger.module';
-// import { PaginationModule } from 'src/common/pagination/pagination.module';
+import { PaginationModule } from 'src/common/pagination/pagination.module';
 import Joi from 'joi';
 import { ENUM_MESSAGE_LANGUAGE } from './message/constants/message.enum.constant';
 import configs from 'src/configs';
@@ -21,6 +21,9 @@ import { DATABASE_CONNECTION_NAME } from 'src/common/database/constants/database
 import { ENUM_APP_ENVIRONMENT } from 'src/app/constants/app.enum.constant';
 import { APP_LANGUAGE } from 'src/app/constants/app.constant';
 import { PolicyModule } from 'src/common/policy/policy.module';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { join } from 'path';
 
 @Module({
     controllers: [],
@@ -155,9 +158,36 @@ import { PolicyModule } from 'src/common/policy/policy.module';
             useFactory: (databaseOptionsService: DatabaseOptionsService) =>
                 databaseOptionsService.createOptions(),
         }),
+        MailerModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: async (config: ConfigService) => {
+                console.log(join(__dirname, '../templates'), " <<< DIRNAME \n\n\n\n")
+                return {
+                    transport: {
+                        host: config.get('SMTP_HOST'),
+                        auth: {
+                            user: config.get('SMTP_USERNAME'),
+                            pass: config.get('SMTP_PASSWORD'),
+                        },
+                    },
+                    defaults: {
+                        from: '',
+                    },
+                    template: {
+                        dir: join(__dirname, '../templates'),
+                        adapter: new HandlebarsAdapter(),
+                        options: {
+                            strict: true,
+                        },
+                    },
+                };
+            },
+            inject: [ConfigService],
+        }),
         MessageModule,
         HelperModule,
-        // PaginationModule,
+        PaginationModule,
+        MailerModule,
         ErrorModule,
         // DebuggerModule.forRoot(),
         ResponseModule,
