@@ -33,6 +33,8 @@
         "inactive": "User is inactive",
         "isActiveInvalid": "User is active invalid",
         "usernameExist": "Username exist",
-        "newPasswordMustDifference": "Old password must difference"
+        "newPasswordMustDifference": "Old password must difference",
+        "invalidEmailVerificationToken": "Invalid email verification token",
+        "invalidResetPasswordToken": "Invalid reset password token"
     }
 }

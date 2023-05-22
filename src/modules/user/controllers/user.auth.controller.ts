@@ -56,6 +56,7 @@ import { UserLoginSerialization } from 'src/modules/user/serializations/user.log
 import { UserPayloadSerialization } from 'src/modules/user/serializations/user.payload.serialization';
 import { UserProfileSerialization } from 'src/modules/user/serializations/user.profile.serialization';
 import { UserService } from 'src/modules/user/services/user.service';
+import { UserAuthService } from '../services/user.auth.service';
 
 @ApiTags('modules.auth.user')
 @Controller({
@@ -64,6 +65,7 @@ import { UserService } from 'src/modules/user/services/user.service';
 })
 export class UserAuthController {
     constructor(
+        private readonly userAuthService: UserAuthService,
         private readonly userService: UserService,
         private readonly authService: AuthService,
         private readonly settingService: SettingService,
@@ -292,6 +294,14 @@ export class UserAuthController {
             });
         }
 
+        return;
+    }
+
+    @UserProtected()
+    @AuthJwtAccessProtected()
+    @Post('verify-email')
+    async verifyEmail(@Body() { email }: { email: string }): Promise<void> {
+        await this.userAuthService.verifyEmail(email);
         return;
     }
 

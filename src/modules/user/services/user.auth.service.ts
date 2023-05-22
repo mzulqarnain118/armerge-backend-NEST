@@ -1,6 +1,7 @@
 import {
     BadRequestException,
     Injectable,
+    Logger,
     NotFoundException,
 } from '@nestjs/common';
 import sgMail from '@sendgrid/mail';
@@ -13,6 +14,8 @@ import { ISendMailOptions } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class UserAuthService {
+    private readonly logger = new Logger('user.auth.service');
+
     constructor(
         private readonly encryptionService: HelperEncryptionService,
         private readonly mailer: MailerService,
@@ -53,7 +56,7 @@ export class UserAuthService {
 
             await user.save();
 
-            await this.passwordResetMail(user.email, token);
+            await this.sendPasswordResetMail(user.email, token);
 
             return true;
         } catch (err) {
@@ -73,44 +76,144 @@ export class UserAuthService {
         if (!isValid)
             throw new BadRequestException({
                 statusCode:
-                    ENUM_USER_STATUS_CODE_ERROR.USER_INVALID_PASSWORD_RESET_TOKEN,
+                    ENUM_USER_STATUS_CODE_ERROR.INVALID_PASSWORD_RESET_TOKEN,
                 message: 'user.error.badRequest',
             });
 
         const user = await this.userService.findOne<UserDoc>({
             'passwordReset.token': token,
-            expiresAt: { $gt: new Date() },
+            'passwordReset.expiresAt': { $gt: new Date() },
         });
 
-        if (!user) throw new BadRequestException('Invalid Token');
+        if (!user)
+            throw new BadRequestException({
+                statusCode:
+                    ENUM_USER_STATUS_CODE_ERROR.INVALID_PASSWORD_RESET_TOKEN,
+                message: 'user.error.badRequest',
+            });
 
         const isEqual = token === user.passwordReset.token;
 
-        if (!isEqual) throw new BadRequestException('Invalid Token');
+        if (!isEqual)
+            throw new BadRequestException({
+                statusCode:
+                    ENUM_USER_STATUS_CODE_ERROR.INVALID_PASSWORD_RESET_TOKEN,
+                message: 'user.error.badRequest',
+            });
 
         return isValid;
     }
 
-    async passwordResetMail(email: string, token: string) {
+    async sendPasswordResetMail(email: string, token: string) {
         sgMail.setApiKey(process.env.API_KEY_SENDGRID);
+
         const clientURL = process.env.CLIENT_URL;
         const resetPassURL = `${clientURL}/reset-password/${token}`;
-
         const mailData: ISendMailOptions = {
             to: email,
-            from: 'noreply@em4793.devcrew.io',
+            from: process.env.MAIL_FROM_ADDRESS,
             subject: 'Reset Password',
-            template: "resetPassword",
+            template: 'resetPassword',
             context: {
-                resetPassURL
-            }
+                resetPassURL,
+            },
         };
 
         try {
             await this.mailer.sendMail(mailData);
             console.log('Reset Mail Sent to: ', email);
         } catch (err) {
-            console.log("Error: ", JSON.stringify(err));
+            console.log('Error: ', JSON.stringify(err));
+        }
+    }
+
+    async createEmailVerificationToken(email: string): Promise<string> {
+        const token = this.encryptionService.jwtEncrypt(
+            { email },
+            {
+                secretKey: process.env.JWT_EMAIL_VERIFICATION_SECRET,
+                expiredIn: '1h',
+                audience: '',
+                issuer: 'armerge',
+                subject: 'verify email',
+            }
+        );
+        return token;
+    }
+
+    async verifyEmail(email: string) {
+        const user = await this.userService.findOneByEmail<UserDoc>(email);
+        if (!user) {
+            throw new NotFoundException({
+                statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
+                message: 'user.error.notFound',
+            });
+        }
+
+        const token = await this.createEmailVerificationToken(email);
+
+        user.emailVerificationToken = token;
+        await user.save();
+
+        await this.sendVerificationEmail(email, token);
+
+        this.logger.log(`Email verification mail sent to ${email}`);
+
+        return;
+    }
+
+    async verifyEmailVerificationToken(token: string) {
+        const isValid = this.encryptionService.jwtVerify(token, {
+            secretKey: process.env.JWT_EMAIL_VERIFICATION_SECRET,
+            audience: '',
+            issuer: 'armerge',
+            subject: 'verify email',
+        });
+
+        if (!isValid)
+            throw new BadRequestException({
+                statusCode:
+                    ENUM_USER_STATUS_CODE_ERROR.INVALID_EMAIL_VERIFICATION_TOKEN,
+                message: 'user.error.invalidEmailVerificationToken',
+            });
+
+        const { email } = this.encryptionService.jwtDecrypt(token);
+
+        const user = await this.userService.findOneByEmail<UserDoc>(email);
+        if (!user) {
+            throw new NotFoundException({
+                statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
+                message: 'user.error.notFound',
+            });
+        }
+
+        if (user.emailVerificationToken !== token) {
+            throw new BadRequestException({
+                statusCode:
+                    ENUM_USER_STATUS_CODE_ERROR.INVALID_EMAIL_VERIFICATION_TOKEN,
+                message: 'user.error.invalidEmailVerificationToken',
+            });
+        }
+
+        user.isEmailVerified = true;
+        user.emailVerificationToken = undefined;
+        await user.save();
+    }
+
+    async sendVerificationEmail(to: string, token: string) {
+        const verificationUrl = `${process.env.CLIENT_VERIFY_EMAIL_URL}?token=${token}`;
+        try {
+            await this.mailer.sendMail({
+                from: process.env.MAIL_FROM_ADDRESS,
+                to: 'iamsohaib@protonmail.com',
+                subject: 'Verify your email address',
+                html: `<p>Please click <a href="${verificationUrl}">here</a> to verify your email address.</p>`,
+            });
+        } catch (error) {
+            console.log(
+                'Error sending verification email:\n ',
+                JSON.stringify(error)
+            );
         }
     }
 }

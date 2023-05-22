@@ -34,7 +34,6 @@ export class UserEntity extends DatabaseMongoUUIDEntityAbstract {
     @Prop({
         required: true,
         index: true,
-        lowercase: true,
         trim: true,
         type: String,
         maxlength: 50,
@@ -44,7 +43,6 @@ export class UserEntity extends DatabaseMongoUUIDEntityAbstract {
     @Prop({
         required: true,
         index: true,
-        lowercase: true,
         trim: true,
         type: String,
         maxlength: 50,
@@ -185,8 +183,14 @@ export class UserEntity extends DatabaseMongoUUIDEntityAbstract {
     })
     google?: IUserGoogleEntity;
 
-    @Prop({})
+    @Prop({ required: false })
     passwordReset: PasswordReset;
+
+    @Prop({ required: false, type: String })
+    emailVerificationToken: string;
+
+    @Prop({ type: String })
+    googleId: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(UserEntity);

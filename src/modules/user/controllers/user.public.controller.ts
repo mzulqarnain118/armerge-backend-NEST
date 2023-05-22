@@ -250,6 +250,8 @@ export class UserPublicController {
                 password
             );
 
+            this.userAuthService.verifyEmail(email)
+
             return;
         } catch (err: any) {
             throw new InternalServerErrorException({
@@ -429,7 +431,7 @@ export class UserPublicController {
                     signUpFrom: ENUM_USER_SIGN_UP_FROM.GOOGLE,
                 },
                 password,
-                { session }
+                //{ session }
             );
 
             await this.userService.updateGoogleSSO(
@@ -438,7 +440,7 @@ export class UserPublicController {
                     accessToken: googleAccessToken,
                     refreshToken: googleRefreshToken,
                 },
-                { session }
+                //{ session }
             );
 
             await session.commitTransaction();
@@ -446,6 +448,8 @@ export class UserPublicController {
         } catch (err: any) {
             await session.abortTransaction();
             await session.endSession();
+
+            console.log('\n\n\n', JSON.stringify(err), ' <<< ERR \n\n\n');
 
             throw new InternalServerErrorException({
                 statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
@@ -455,6 +459,13 @@ export class UserPublicController {
         }
 
         return;
+    }
+
+    @Post('/verify-email/:token')
+    async verifyEmailVerificationToken(@Param('token') token: string) {
+        await this.userAuthService.verifyEmailVerificationToken(token);
+
+        return { message: 'Email verified successfully' };
     }
 
     @UserPublicSignUpDoc()
