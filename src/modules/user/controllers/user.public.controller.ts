@@ -250,7 +250,7 @@ export class UserPublicController {
                 password
             );
 
-            this.userAuthService.verifyEmail(email)
+            this.userAuthService.verifyEmail(email);
 
             return;
         } catch (err: any) {
@@ -430,7 +430,7 @@ export class UserPublicController {
                     role: role._id,
                     signUpFrom: ENUM_USER_SIGN_UP_FROM.GOOGLE,
                 },
-                password,
+                password
                 //{ session }
             );
 
@@ -439,7 +439,7 @@ export class UserPublicController {
                 {
                     accessToken: googleAccessToken,
                     refreshToken: googleRefreshToken,
-                },
+                }
                 //{ session }
             );
 
@@ -478,11 +478,14 @@ export class UserPublicController {
     }
 
     @Post('/reset-password/:token')
-    async validateResetPasswordToken(@Param('token') token: string) {
-        const user = await this.userAuthService.validatePasswordResetToken(
-            token
+    async validateTokenAndResetPassword(
+        @Param('token') token: string,
+        @Body() { newPassword }: { newPassword: string }
+    ) {
+        const isPasswordUpdated = await this.userAuthService.validateTokenAndResetPassword(
+            token,
+            newPassword
         );
-
-        // Return the user ID to the client here
+        return isPasswordUpdated;
     }
 }

@@ -3,9 +3,10 @@ import { UserRepositoryModule } from 'src/modules/user/repository/user.repositor
 import { UserService } from './services/user.service';
 import { UserAuthService } from './services/user.auth.service';
 import { MailerModule } from '~common/mail/mailer.module';
+import { AuthModule } from '~src/common/auth/auth.module';
 
 @Module({
-    imports: [UserRepositoryModule, MailerModule],
+    imports: [AuthModule, UserRepositoryModule, MailerModule],
     exports: [UserService, UserAuthService],
     providers: [UserService, UserAuthService],
 })

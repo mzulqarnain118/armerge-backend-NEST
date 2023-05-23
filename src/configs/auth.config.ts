@@ -38,7 +38,7 @@ export default registerAs(
 
         password: {
             attempt: true,
-            maxAttempt: 5,
+            maxAttempt: 10,
             saltLength: 8,
             expiredIn: seconds('182d'), // 182 days
         },
