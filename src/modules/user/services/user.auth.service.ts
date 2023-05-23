@@ -1,3 +1,4 @@
+import { ISendMailOptions } from '@nestjs-modules/mailer';
 import {
     BadRequestException,
     Injectable,
@@ -5,18 +6,21 @@ import {
     NotFoundException,
 } from '@nestjs/common';
 import sgMail from '@sendgrid/mail';
-import { UserService } from './user.service';
-import { UserDoc } from '../repository/entities/user.entity';
-import { HelperEncryptionService } from '~src/common/helper/services/helper.encryption.service';
-import { ENUM_USER_STATUS_CODE_ERROR } from '../constants/user.status-code.constant';
+
+import { AuthService } from '~common/auth/services/auth.service';
+import { HelperEncryptionService } from '~common/helper/services/helper.encryption.service';
 import { MailerService } from '~common/mail/mailer.service';
-import { ISendMailOptions } from '@nestjs-modules/mailer';
+
+import { ENUM_USER_STATUS_CODE_ERROR } from '../constants/user.status-code.constant';
+import { UserDoc } from '../repository/entities/user.entity';
+import { UserService } from './user.service';
 
 @Injectable()
 export class UserAuthService {
     private readonly logger = new Logger('user.auth.service');
 
     constructor(
+        private readonly authService: AuthService,
         private readonly encryptionService: HelperEncryptionService,
         private readonly mailer: MailerService,
         private readonly userService: UserService
@@ -65,7 +69,7 @@ export class UserAuthService {
         }
     }
 
-    async validatePasswordResetToken(token: string) {
+    async validateTokenAndResetPassword(token: string, newPassword: string) {
         const isValid = this.encryptionService.jwtVerify(token, {
             secretKey: process.env.JWT_PASSWORD_RESET_SECRET,
             audience: '',
@@ -101,7 +105,18 @@ export class UserAuthService {
                 message: 'user.error.badRequest',
             });
 
-        return isValid;
+        const { passwordHash, passwordExpired, salt, passwordCreated } =
+            await this.authService.createPassword(newPassword);
+
+        user.password = passwordHash;
+        user.passwordExpired = passwordExpired;
+        user.passwordCreated = passwordCreated;
+        user.salt = salt;
+        user.passwordReset.token = "null";
+
+        await user.save();
+
+        return true;
     }
 
     async sendPasswordResetMail(email: string, token: string) {
