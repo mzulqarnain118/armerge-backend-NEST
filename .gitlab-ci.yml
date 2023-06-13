@@ -17,5 +17,5 @@ Deploy:
     - cp -r * .public
     - mv .public public
     - zip -r public.zip public
-    - scp -o StrictHostKeyChecking=no public.zip ubuntu@ec2-18-141-200-19.ap-southeast-1.compute.amazonaws.com:~/backend
-    - ssh -o StrictHostKeyChecking=no ubuntu@ec2-18-141-200-19.ap-southeast-1.compute.amazonaws.com "cd ~/backend; touch foo.txt; unzip public.zip"
+    - scp -o StrictHostKeyChecking=no public.zip ubuntu@18.141.200.19:~/backend
+    - ssh -o StrictHostKeyChecking=no ubuntu@18.141.200.19 "cd ~/backend; touch foo.txt; unzip public.zip"
