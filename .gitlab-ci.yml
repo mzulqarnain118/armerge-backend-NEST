@@ -3,7 +3,7 @@ stages:
 Deploy: 
   stage: deploy
   tags:
-    - armerge
+    - armerge-backend
   before_script:
   - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )' 
   - eval $(ssh-agent -s)
