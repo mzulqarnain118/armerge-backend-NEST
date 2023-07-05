@@ -46,6 +46,8 @@ import { UserLoginSerialization } from 'src/modules/user/serializations/user.log
 import { UserPayloadSerialization } from 'src/modules/user/serializations/user.payload.serialization';
 import { UserService } from 'src/modules/user/services/user.service';
 import { UserAuthService } from '../services/user.auth.service';
+import shopify from '../../store/shopify';
+
 
 @ApiTags('modules.public.user')
 @Controller({
@@ -482,10 +484,31 @@ export class UserPublicController {
         @Param('token') token: string,
         @Body() { newPassword }: { newPassword: string }
     ) {
-        const isPasswordUpdated = await this.userAuthService.validateTokenAndResetPassword(
-            token,
-            newPassword
-        );
+        const isPasswordUpdated =
+            await this.userAuthService.validateTokenAndResetPassword(
+                token,
+                newPassword
+            );
         return isPasswordUpdated;
+    }
+
+    @Post('add-products')
+    async dummyData(@Body() { session }: any): Promise<any> {
+        console.log(session, ' <<< session');
+         try {
+            const Products = await shopify.rest.Product.all({
+                session,
+            });
+            console.log(Products, ' <<< Products');
+            return { message: 'Babr bhai ayen hen ' };
+         } catch (error) {
+             console.log(error.message, ' <<< error');
+             throw new InternalServerErrorException({
+                statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+                message: 'http.serverError.internalServerError',
+                _error: error.message,
+             });
+             return;
+         }
     }
 }

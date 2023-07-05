@@ -13,3 +13,9 @@ export enum TEAM_MEMBER_STATUS {
     ACTIVE = 'ACTIVE',
     DISABLED = 'DISABLED',
 }
+
+export enum PLATFORMS {
+    SHOPIFY = 'SHOPIFY',
+    MAGNETO = 'MAGNETO',
+    WOOCOMMERCE = 'WOOCOMMERCE',
+}

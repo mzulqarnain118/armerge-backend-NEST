@@ -33,13 +33,12 @@ export class ShopifyStrategy extends PassportStrategy(Strategy, 'shopify') {
         console.log(existingStore, " <<< EXISTING Store")
         if (existingStore) {
             // Update the existing store's access token
-            existingStore.accessToken = accessToken;
             await existingStore.save();
             return { accessToken, profile };
         } else {
             // Create a new store entry
             const newStore = { shop: profile._json.shop_domain, accessToken };
-            const createdStore = await this.storeService.create(newStore);
+            // const createdStore = await this.storeService.create(newStore);
             return { accessToken, profile };
         }
     }

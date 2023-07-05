@@ -3,6 +3,7 @@ import { Logger, VersioningType } from '@nestjs/common';
 import { AppModule } from 'src/app/app.module';
 import { ConfigService } from '@nestjs/config';
 import { useContainer } from 'class-validator';
+import mongoose from 'mongoose';
 import swaggerInit from './swagger';
 
 async function bootstrap() {
@@ -67,6 +68,12 @@ async function bootstrap() {
         `Http Server running on ${await app.getUrl()}`,
         'NestApplication'
     );
+     const db = mongoose.connection;
+     db.on('error', console.error.bind(console, 'connection error:'));
+     db.once('open', function () {
+         console.log('DB connected');
+     });
+    // console.log('=====?', mongoose.connection.readyState);
     logger.log(`Database uri ${databaseUri}`, 'NestApplication');
 
     logger.log(`==========================================================`);

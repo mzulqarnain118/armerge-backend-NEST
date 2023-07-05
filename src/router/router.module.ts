@@ -40,7 +40,7 @@ export class RouterModule {
                         module: RoutesAuthModule,
                     },
                 ])
-            );
+            );  
         }
 
         return {

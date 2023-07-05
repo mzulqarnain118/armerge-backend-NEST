@@ -12,6 +12,7 @@ import {
     Post,
     // UploadedFile,
 } from '@nestjs/common';
+
 import { ApiTags } from '@nestjs/swagger';
 import {
     AuthJwtAccessProtected,
@@ -68,8 +69,7 @@ export class UserAuthController {
         private readonly userAuthService: UserAuthService,
         private readonly userService: UserService,
         private readonly authService: AuthService,
-        private readonly settingService: SettingService,
-        // private readonly awsS3Service: AwsS3Service
+        private readonly settingService: SettingService // private readonly awsS3Service: AwsS3Service
     ) {}
 
     @UserAuthRefreshDoc()
