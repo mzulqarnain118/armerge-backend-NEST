@@ -12,6 +12,10 @@ Deploy:
   - chmod 700 ~/.ssh
   - ssh-keyscan $EC2_IPADDRESS >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
+  - apt-get install --no-install-recommends -y npm
+  - npm --version
+  - npx --version
+  - npm i -g yarn
   script:
     - mkdir .public
     - cp -r * .public
@@ -19,4 +23,4 @@ Deploy:
     - zip -r public.zip public
     - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; rm -rf public.zip"
     - scp -o StrictHostKeyChecking=no public.zip ubuntu@${EC2_IPADDRESS}:~/backend/.cache
-    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache/public; npm install; npm run build;"
+    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache/public; yarn install; yarn run build;"
