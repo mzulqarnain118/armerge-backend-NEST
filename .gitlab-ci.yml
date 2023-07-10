@@ -14,7 +14,7 @@ Deploy:
   - chmod 644 ~/.ssh/known_hosts
   script:
     - mkdir .public
-    - cp -r dist/src .public
+    - cp -r * .public
     - mv .public public
     - zip -r public.zip public
     - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; rm -rf public.zip"
