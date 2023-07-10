@@ -19,3 +19,4 @@ Deploy:
     - zip -r public.zip public
     - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; rm -rf public.zip"
     - scp -o StrictHostKeyChecking=no public.zip ubuntu@${EC2_IPADDRESS}:~/backend/.cache
+    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache/public; yarn install; yarn run build;"
