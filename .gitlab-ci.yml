@@ -13,11 +13,7 @@ Deploy:
   - ssh-keyscan $EC2_IPADDRESS >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
   script:
-    - export PATH="$PATH:/home/ubuntu/.nvm/versions/node/v18.16.1/bin"
     - mkdir .public
-    - which npm
-    - npm i
-    - npm run build
     - cp -r dist/src .public
     - mv .public public
     - zip -r public.zip public
