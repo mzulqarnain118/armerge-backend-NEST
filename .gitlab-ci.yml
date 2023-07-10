@@ -13,10 +13,12 @@ Deploy:
   - ssh-keyscan $EC2_IPADDRESS >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
   script:
+    - export PATH=$PATH:/home/ubuntu/.nvm/versions/node/v18.16.1/bin
     - mkdir .public
-    - cp -r * .public
+    - npm i
+    - npm run build
+    - cp -r dist/src .public
     - mv .public public
     - zip -r public.zip public
     - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; rm -rf public.zip"
     - scp -o StrictHostKeyChecking=no public.zip ubuntu@${EC2_IPADDRESS}:~/backend/.cache
-    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; unzip public.zip; npm i; npm run build;"
