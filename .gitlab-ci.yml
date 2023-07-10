@@ -12,10 +12,6 @@ Deploy:
   - chmod 700 ~/.ssh
   - ssh-keyscan $EC2_IPADDRESS >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
-  - apt-get install --no-install-recommends -y npm
-  - npm --version
-  - npx --version
-  - npm i -g yarn
   script:
     - mkdir .public
     - cp -r * .public
