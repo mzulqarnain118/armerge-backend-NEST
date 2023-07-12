@@ -131,6 +131,9 @@ export class UserEntity extends DatabaseMongoUUIDEntityAbstract {
     @Prop({ default: false, type: Boolean })
     isEmailVerified: boolean;
 
+    @Prop({ default: false, type: Boolean })
+    hideSuccessBar: boolean;
+
     @Prop({
         required: true,
         default: false,

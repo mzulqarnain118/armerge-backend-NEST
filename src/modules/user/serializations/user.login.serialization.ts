@@ -17,7 +17,7 @@ export class UserLoginSerialization {
 
     @ApiProperty({
         example: faker.random.alphaNumeric(30),
-        description: 'Will be valid JWT Encode string',
+        description: 'Will be valid User data',
         required: true,
     })
     readonly accessToken: string;
@@ -29,4 +29,12 @@ export class UserLoginSerialization {
     })
     @ApiProperty()
     readonly refreshToken: string;
+
+    @ApiProperty({
+        example: faker.random.alphaNumeric(30),
+        description: 'Will be valid JWT Encode string',
+        required: true,
+    })
+    @ApiProperty()
+    readonly user: any;
 }

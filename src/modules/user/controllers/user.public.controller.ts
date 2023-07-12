@@ -48,7 +48,6 @@ import { UserService } from 'src/modules/user/services/user.service';
 import { UserAuthService } from '../services/user.auth.service';
 import shopify from '../../store/shopify';
 
-
 @ApiTags('modules.public.user')
 @Controller({
     version: '1',
@@ -65,13 +64,17 @@ export class UserPublicController {
     ) {}
 
     @UserPublicLoginDoc()
-    @Response('user.login', {
-        serialization: UserLoginSerialization,
-    })
+    @Response(
+        'user.login'
+        // {
+        //     serialization: UserLoginSerialization,
+        // }
+    )
     @HttpCode(HttpStatus.OK)
     @Post('/login')
     async login(@Body() { email, password }: UserLoginDto): Promise<IResponse> {
         const user: UserDoc = await this.userService.findOneByEmail(email);
+
         if (!user) {
             throw new NotFoundException({
                 statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
@@ -199,6 +202,7 @@ export class UserPublicController {
                 expiresIn,
                 accessToken,
                 refreshToken,
+                user,
             },
         };
     }
@@ -209,7 +213,7 @@ export class UserPublicController {
     async signUp(
         @Body()
         { email, mobileNumber, ...body }: UserSignUpDto
-    ): Promise<void> {
+    ): Promise<any> {
         const promises: Promise<any>[] = [
             this.roleService.findOneByName('user'),
             this.userService.existByEmail(email),
@@ -241,7 +245,7 @@ export class UserPublicController {
                 body.password
             );
 
-            await this.userService.create(
+            const createdUser = await this.userService.create(
                 {
                     email,
                     mobileNumber,
@@ -251,10 +255,71 @@ export class UserPublicController {
                 },
                 password
             );
+            const userWithRole: IUserDoc = await this.userService.joinWithRole(
+                createdUser
+            );
+            if (!userWithRole.role.isActive) {
+                throw new ForbiddenException({
+                    statusCode: ENUM_ROLE_STATUS_CODE_ERROR.ROLE_INACTIVE_ERROR,
+                    message: 'role.error.inactive',
+                });
+            }
 
+            try {
+                await this.userService.resetPasswordAttempt(createdUser);
+            } catch (err: any) {
+                throw new InternalServerErrorException({
+                    statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
+                    message: 'http.serverError.internalServerError',
+                    _error: err.message,
+                });
+            }
+
+            const payload: UserPayloadSerialization =
+                await this.userService.payloadSerialization(userWithRole);
+            const tokenType: string = await this.authService.getTokenType();
+            const expiresIn: number =
+                await this.authService.getAccessTokenExpirationTime();
+            const payloadAccessToken: Record<string, any> =
+                await this.authService.createPayloadAccessToken(payload);
+            const payloadRefreshToken: Record<string, any> =
+                await this.authService.createPayloadRefreshToken(payload._id, {
+                    loginWith: ENUM_AUTH_LOGIN_WITH.LOCAL,
+                });
+
+            const payloadEncryption =
+                await this.authService.getPayloadEncryption();
+            let payloadHashedAccessToken: Record<string, any> | string =
+                payloadAccessToken;
+            let payloadHashedRefreshToken: Record<string, any> | string =
+                payloadRefreshToken;
+
+            if (payloadEncryption) {
+                payloadHashedAccessToken =
+                    await this.authService.encryptAccessToken(
+                        payloadAccessToken
+                    );
+                payloadHashedRefreshToken =
+                    await this.authService.encryptRefreshToken(
+                        payloadRefreshToken
+                    );
+            }
+
+            const accessToken: string =
+                await this.authService.createAccessToken(
+                    payloadHashedAccessToken
+                );
+
+            const refreshToken: string =
+                await this.authService.createRefreshToken(
+                    payloadHashedRefreshToken
+                );
             this.userAuthService.verifyEmail(email);
 
-            return;
+            return {
+                message: 'User Created Successfully',
+                data: { user: createdUser, accessToken, refreshToken },
+            };
         } catch (err: any) {
             throw new InternalServerErrorException({
                 statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
@@ -469,6 +534,18 @@ export class UserPublicController {
 
         return { message: 'Email verified successfully' };
     }
+    
+    @Post('/verify-email')
+    async verifyEmailVerification(@Body('email') email: string) {
+        await this.userAuthService.verifyEmail(email);
+        return { message: `Email sent to  ${email} successfully}` };
+    }
+
+    @Post('/hideSuccessBar')
+    async hideSuccessBar(@Body('email') email: string) {
+        await this.userAuthService.hideSuccessBar(email);
+        return { message: `Hide Success  successfully}` };
+    }
 
     @UserPublicSignUpDoc()
     @Response('user.resetPassword')
@@ -495,20 +572,20 @@ export class UserPublicController {
     @Post('add-products')
     async dummyData(@Body() { session }: any): Promise<any> {
         console.log(session, ' <<< session');
-         try {
+        try {
             const Products = await shopify.rest.Product.all({
                 session,
             });
             console.log(Products, ' <<< Products');
             return { message: 'Babr bhai ayen hen ' };
-         } catch (error) {
-             console.log(error.message, ' <<< error');
-             throw new InternalServerErrorException({
+        } catch (error) {
+            console.log(error.message, ' <<< error');
+            throw new InternalServerErrorException({
                 statusCode: ENUM_ERROR_STATUS_CODE_ERROR.ERROR_UNKNOWN,
                 message: 'http.serverError.internalServerError',
                 _error: error.message,
-             });
-             return;
-         }
+            });
+            return;
+        }
     }
 }

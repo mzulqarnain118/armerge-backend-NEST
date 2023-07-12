@@ -112,7 +112,7 @@ export class UserAuthService {
         user.passwordExpired = passwordExpired;
         user.passwordCreated = passwordCreated;
         user.salt = salt;
-        user.passwordReset.token = "null";
+        user.passwordReset.token = 'null';
 
         await user.save();
 
@@ -215,12 +215,25 @@ export class UserAuthService {
         await user.save();
     }
 
+    async hideSuccessBar(email: string) {
+        const user = await this.userService.findOneByEmail<UserDoc>(email);
+        if (!user) {
+            throw new NotFoundException({
+                statusCode: ENUM_USER_STATUS_CODE_ERROR.USER_NOT_FOUND_ERROR,
+                message: 'user.error.notFound',
+            });
+        }
+
+        user.hideSuccessBar = true;
+        await user.save();
+    }
+
     async sendVerificationEmail(to: string, token: string) {
-        const verificationUrl = `${process.env.CLIENT_VERIFY_EMAIL_URL}?token=${token}`;
+        const verificationUrl = `${process.env.CLIENT_VERIFY_EMAIL_URL}/${token}`;
         try {
-            await this.mailer.sendMail({
+            const data = await this.mailer.sendMail({
                 from: process.env.MAIL_FROM_ADDRESS,
-                to: 'iamsohaib@protonmail.com',
+                to: to,
                 subject: 'Verify your email address',
                 html: `<p>Please click <a href="${verificationUrl}">here</a> to verify your email address.</p>`,
             });
