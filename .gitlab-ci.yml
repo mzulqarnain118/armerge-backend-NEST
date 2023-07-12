@@ -1,13 +1,24 @@
-# You can override the included template(s) by including variable overrides
-# SAST customization: https://docs.gitlab.com/ee/user/application_security/sast/#customizing-the-sast-settings
-# Secret Detection customization: https://docs.gitlab.com/ee/user/application_security/secret_detection/#customizing-settings
-# Dependency Scanning customization: https://docs.gitlab.com/ee/user/application_security/dependency_scanning/#customizing-the-dependency-scanning-settings
-# Container Scanning customization: https://docs.gitlab.com/ee/user/application_security/container_scanning/#customizing-the-container-scanning-settings
-# Note that environment variables can be set in several places
-# See https://docs.gitlab.com/ee/ci/variables/#cicd-variable-precedence
 stages:
-- test
-sast:
-  stage: test
-include:
-- template: Security/SAST.gitlab-ci.yml
+  - deploy
+Deploy: 
+  stage: deploy
+  tags:
+    - armerge-backend
+  before_script:
+  - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )' 
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan $EC2_IPADDRESS >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  script:
+    - mkdir .public
+    - yarn install
+    - yarn run build
+    - cp -r dist .public
+    - mv .public public
+    - zip -r public.zip public
+    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; rm -rf public.zip; rm -rf public"
+    - scp -o StrictHostKeyChecking=no public.zip ubuntu@${EC2_IPADDRESS}:~/backend/.cache
+    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; unzip public; rm -rf ~/backend/armerge/src; rm ~/backend/armerge/package.json;cd public/dist; cp -r src ~/backend/armerge;cp package.json ~/backend/armerge; cd ~/backend/armerge; yarn install; pm2 restart armerge-backend"
