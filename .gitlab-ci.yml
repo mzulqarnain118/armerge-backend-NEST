@@ -21,4 +21,4 @@ Deploy:
     - zip -r public.zip public
     - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; rm -rf public.zip; rm -rf public"
     - scp -o StrictHostKeyChecking=no public.zip ubuntu@${EC2_IPADDRESS}:~/backend/.cache
-    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; unzip public; cd public; rm -rf ~/backend/armerge/src; rm ~/backend/armerge/package.json;cp -r src ~/backend/armerge;cp package.json ~/backend/armerge; cd ~/backend/armerge; yarn install"
+    - ssh -o StrictHostKeyChecking=no ubuntu@${EC2_IPADDRESS} "cd ~/backend/.cache; unzip public; rm -rf ~/backend/armerge/src; rm ~/backend/armerge/package.json;cd public/dist; cp -r src ~/backend/armerge;cp package.json ~/backend/armerge; cd ~/backend/armerge; yarn install"
