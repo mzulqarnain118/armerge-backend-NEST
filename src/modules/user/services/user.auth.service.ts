@@ -122,8 +122,8 @@ export class UserAuthService {
     async sendPasswordResetMail(email: string, token: string) {
         sgMail.setApiKey(process.env.API_KEY_SENDGRID);
 
-        const clientURL = process.env.CLIENT_URL;
-        const resetPassURL = `${clientURL}/reset-password/${token}`;
+        const clientResetPasswordURL = process.env.CLIENT_RESET_PASSWORD_URL;
+        const resetPassURL = `${clientResetPasswordURL}/${token}`;
         const mailData: ISendMailOptions = {
             to: email,
             from: process.env.MAIL_FROM_ADDRESS,
