@@ -110,6 +110,7 @@ export class UserService implements IUserService {
             mobileNumber,
             role,
             signUpFrom,
+            storeID,    
         }: UserCreateDto,
         { passwordExpired, passwordHash, salt, passwordCreated }: IAuthPassword,
         options?: IDatabaseCreateOptions
@@ -121,6 +122,7 @@ export class UserService implements IUserService {
         create.role = role;
         create.lastName = lastName;
         create.salt = salt;
+        create.storeID = storeID;
         create.passwordExpired = passwordExpired;
         create.passwordCreated = passwordCreated;
         create.signUpDate = this.helperDateService.create();

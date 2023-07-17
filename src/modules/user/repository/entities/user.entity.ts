@@ -114,6 +114,15 @@ export class UserEntity extends DatabaseMongoUUIDEntityAbstract {
     })
     signUpFrom: ENUM_USER_SIGN_UP_FROM;
 
+@Prop({
+    index: true,
+    trim: true,
+    type: String,
+    maxlength: 50,
+    required: false,
+})
+storeID: string;
+
     @Prop({
         required: true,
         type: String,

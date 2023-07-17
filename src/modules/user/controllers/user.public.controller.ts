@@ -458,6 +458,7 @@ export class UserPublicController {
         {
             email,
             firstName,
+            storeID,
             lastName,
             accessToken: googleAccessToken,
             refreshToken: googleRefreshToken,
@@ -492,6 +493,7 @@ export class UserPublicController {
                 {
                     email,
                     firstName,
+                    storeID,
                     lastName,
                     password: passwordString,
                     role: role._id,

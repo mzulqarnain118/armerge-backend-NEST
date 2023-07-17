@@ -86,4 +86,14 @@ export class UserCreateDto {
     @IsString()
     @IsNotEmpty()
     readonly signUpFrom: ENUM_USER_SIGN_UP_FROM;
+
+    @ApiProperty({
+        example: faker.random.alphaNumeric(30),
+    })
+    @IsOptional()
+    @Type(() => String)
+    @IsString()
+    @MinLength(1)
+    @MaxLength(30)
+    readonly storeID: string;
 }

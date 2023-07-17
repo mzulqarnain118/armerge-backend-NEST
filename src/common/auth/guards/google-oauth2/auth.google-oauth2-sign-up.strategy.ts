@@ -26,6 +26,7 @@ export class AuthGoogleOAuth2SignUpStrategy extends PassportStrategy(
     async validate(
         accessToken: string,
         refreshToken: string,
+        storeID: string,
         profile: Profile,
         done: VerifyCallback
     ): Promise<any> {
@@ -36,6 +37,7 @@ export class AuthGoogleOAuth2SignUpStrategy extends PassportStrategy(
             lastName: name.familyName,
             accessToken,
             refreshToken,
+            storeID
         };
 
         done(null, user);

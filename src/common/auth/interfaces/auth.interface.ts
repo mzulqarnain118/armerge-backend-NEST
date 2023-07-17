@@ -23,4 +23,5 @@ export interface IAuthGooglePayload {
     lastName: string;
     accessToken: string;
     refreshToken: string;
+    storeID: string;
 }
