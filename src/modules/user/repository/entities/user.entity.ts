@@ -118,7 +118,7 @@ export class UserEntity extends DatabaseMongoUUIDEntityAbstract {
     index: true,
     trim: true,
     type: String,
-    maxlength: 50,
+    maxlength: 100,
     required: false,
 })
 storeID: string;

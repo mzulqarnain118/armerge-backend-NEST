@@ -94,6 +94,6 @@ export class UserCreateDto {
     @Type(() => String)
     @IsString()
     @MinLength(1)
-    @MaxLength(30)
+    @MaxLength(100)
     readonly storeID: string;
 }
