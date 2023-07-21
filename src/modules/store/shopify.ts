@@ -7,8 +7,8 @@ function myAppsLogFunction(severity: any, message: any): LogFunction {
   return null;
 }
 const shopify = shopifyApi({
-    apiKey: '3171c9ba54169457ba26cf189bce7be4', //APP CLIENT_ID     3171c9ba54169457ba26cf189bce7be4
-    apiSecretKey: '541213913b6b41b07fbd7f8fbeabc899', //APP CLIENT_SECRET
+    apiKey: 'dafede6bd5b93e3f438027d99291ef15', //APP CLIENT_ID     3171c9ba54169457ba26cf189bce7be4
+    apiSecretKey: 'b6190b832ba4344cf23e02d43457ede9', //APP CLIENT_SECRET   541213913b6b41b07fbd7f8fbeabc899
     scopes: ['read_products'],
     hostName: 'localhost:4321',
     hostScheme: 'http',

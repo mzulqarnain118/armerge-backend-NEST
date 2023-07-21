@@ -1,7 +1,6 @@
 import { StoreService } from './store.service';
 import { CreateStoreDto, getProductsDto } from './dto/create-store.dto';
 import { Request, Response } from 'express';
-import { AuthGuard } from '@nestjs/passport';
 import shopify from './shopify';
 import {
     BadRequestException,
