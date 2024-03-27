@@ -24,7 +24,7 @@ Armerge Backend with NEST is a project that includes modules for authentication,
 2. Install dependencies:
 
     ```
-    npm install
+    yarn install
     ```
 
 3. Configure Shopify APIs:
@@ -32,13 +32,19 @@ Armerge Backend with NEST is a project that includes modules for authentication,
     - Obtain Shopify API credentials.
     - Update the configuration in the project for Shopify integration.
 
-4. Run the server:
+4. Run Seeds:
 
     ```
-    npm start
+     yarn seed
     ```
 
-5. Access the APIs for authentication, roles management, and CRUD operations with Shopify.
+5. Run the server:
+
+    ```
+    yarn start
+    ```
+
+6. Access the APIs for authentication, roles management, and CRUD operations with Shopify.
 
 ## Contact
 
